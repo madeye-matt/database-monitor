@@ -1,0 +1,15 @@
+{
+    "DatabaseConfig":{
+        "Host":"localhost",
+        "Port":5432,
+        "Username":"postgres",
+        "Password":"password",
+        "Database": "myschema",
+        "SSLMode": "disable"
+    },
+    "Monitoring":[
+        { "SQL": "select some_column, count(*) from some_table group by some_column;", "RollUp": true },
+        { "SQL": "select some_other_column from some_other_table;", "RollUp": false },
+    ],
+    "SpaceReplacement": "-"
+}
