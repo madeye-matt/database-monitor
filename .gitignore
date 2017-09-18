@@ -1,0 +1,6 @@
+*.iml
+*.log
+.idea
+private
+database-monitor
+database-monitor.exe
