@@ -19,6 +19,7 @@ type DatabaseConfig struct {
 type Query struct {
 	SQL    string
 	RollUp bool
+	TimeFilter bool
 }
 
 type Config struct {

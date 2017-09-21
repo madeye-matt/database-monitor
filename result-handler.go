@@ -15,19 +15,19 @@ type DefaultResultHandler struct {
 }
 
 func (r *DefaultResultHandler) HandleResult(cols []string, columnPointers []interface{}) {
-	log.Printf("r.result(before): %v\n", r.result)
-	log.Printf("cols: %v\n", cols)
-	log.Printf("columnPointers: %v\n", columnPointers)
+	//log.Printf("r.result(before): %v\n", r.result)
+	//log.Printf("cols: %v\n", cols)
+	//log.Printf("columnPointers: %v\n", columnPointers)
 	m := make(map[string]interface{})
 
 	for i, colName := range cols {
 		val := columnPointers[i].(*interface{})
-		log.Printf("%s=%v\n", colName, *val)
+		//log.Printf("%s=%v\n", colName, *val)
 		m[colName] = *val
 	}
 
 	r.result = append(r.result, m)
-	log.Printf("r.result: %v\n", r.result)
+	//log.Printf("r.result: %v\n", r.result)
 }
 
 func (r *DefaultResultHandler) GetMap() []map[string]interface{} {

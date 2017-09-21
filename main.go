@@ -9,9 +9,15 @@ import (
 	"strings"
 )
 
-const splunkDateFormat string = "01/02/2006 15:04:05 -0700"
+const (
+    splunkDateFormat string = "01/02/2006 15:04:05 -0700"
+	commandLineDateFormat string = "2006-01-02 15:04:05.000"
+)
 
-var configFile = flag.String("c", "", "location of configuration json file")
+var (
+	configFile = flag.String("c", "", "location of configuration json file")
+	timestamp = flag.String("t", "", "earliest time to retrieve records for (where appropriate)")
+)
 
 func checkError(e error) {
 	if e != nil {
@@ -28,12 +34,25 @@ func printMap(timestamp time.Time, m map[string]interface{}, spaceReplacement st
 	fmt.Printf("\n")
 }
 
+func parseTimestamp(timeStr string) time.Time {
+	time, err := time.Parse(commandLineDateFormat, timeStr)
+	checkError(err)
+
+	return time
+}
+
 func main() {
 	flag.Parse()
 	logFile := initLogging()
 	defer logFile.Close()
 	config, err := loadConfig(*configFile)
 	checkError(err)
+
+	filterTime := time.Time{}
+
+	if len(*timestamp) > 0 {
+		filterTime = parseTimestamp(*timestamp)
+	}
 
 	dbConfig := config.DatabaseConfig
 	db := initDb(dbConfig)
@@ -51,7 +70,11 @@ func main() {
 			r = NewRolledUpResultHandler()
 		}
 
-		executeQuery(db, query, &r)
+		if query.TimeFilter {
+			executeQueryWithTimeFilter(db, query, &r, filterTime)
+		} else {
+			executeQuery(db, query, &r)
+		}
 
 		result := r.GetMap()
 		log.Printf("result: %v\n", result)

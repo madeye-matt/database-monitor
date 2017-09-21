@@ -4,6 +4,7 @@ import (
 	"log"
 	"fmt"
 	"database/sql"
+	"time"
 )
 
 func getConnectionParameters(dbConfig DatabaseConfig) string {
@@ -20,8 +21,19 @@ func initDb(dbConfig DatabaseConfig) *sql.DB {
 }
 
 func executeQuery(db *sql.DB, query Query, resultHandler *ResultHandler) {
+	executeQueryCore(db, query, resultHandler, func(string) (*sql.Rows, error) { return db.Query(query.SQL) })
+}
+
+func executeQueryWithTimeFilter(db *sql.DB, query Query, resultHandler *ResultHandler, time time.Time) {
+	executeQueryCore(db, query, resultHandler, func(string) (*sql.Rows, error) { return db.Query(query.SQL, time) })
+}
+
+func executeQueryCore(db *sql.DB, query Query, resultHandler *ResultHandler, queryFunc func (string) (*sql.Rows, error)){
 	var rows *sql.Rows
-	rows, err := db.Query(query.SQL)
+	var err error
+
+	rows, err = queryFunc(query.SQL)
+
 	checkError(err)
 
 	var cols []string
