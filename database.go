@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"database/sql"
 	"time"
+	"sync"
+	"log"
 )
 
 func getConnectionParameters(dbConfig DatabaseConfig) string {
@@ -20,12 +22,18 @@ func initDb(dbConfig DatabaseConfig) *sql.DB {
 	return db
 }
 
-func executeQuery(db *sql.DB, query Query, resultHandler *ResultHandler) {
+func executeQuery(wg *sync.WaitGroup, db *sql.DB, query Query, resultHandler *ResultHandler) {
+	log.Printf("start: executeQuery")
+	defer wg.Done()
 	executeQueryCore(db, query, resultHandler, func(string) (*sql.Rows, error) { return db.Query(query.SQL) })
+	log.Printf("end: executeQuery")
 }
 
-func executeQueryWithTimeFilter(db *sql.DB, query Query, resultHandler *ResultHandler, time time.Time) {
+func executeQueryWithTimeFilter(wg *sync.WaitGroup, db *sql.DB, query Query, resultHandler *ResultHandler, time time.Time) {
+	log.Printf("start: executeQueryWithTimeFilter")
+	defer wg.Done()
 	executeQueryCore(db, query, resultHandler, func(string) (*sql.Rows, error) { return db.Query(query.SQL, time) })
+	log.Printf("end: executeQueryWithTimeFilter")
 }
 
 func executeQueryCore(db *sql.DB, query Query, resultHandler *ResultHandler, queryFunc func (string) (*sql.Rows, error)){
@@ -59,5 +67,6 @@ func executeQueryCore(db *sql.DB, query Query, resultHandler *ResultHandler, que
 		//log.Printf("resultHandler: %v\n", *resultHandler)
 	}
 
+	(*resultHandler).Finalise()
 }
 

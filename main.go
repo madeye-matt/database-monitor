@@ -9,6 +9,7 @@ import (
 	"time"
 	"strings"
 	"strconv"
+	"sync"
 )
 
 const (
@@ -103,29 +104,41 @@ func main() {
 	db := initDb(dbConfig)
 	defer db.Close()
 
+	var wg sync.WaitGroup
+	var rc ResultChannel = make(ResultChannel)
+
+	go func(){
+		for m := range rc {
+			currentTime := time.Now()
+
+			printMap(currentTime, m, config.SpaceReplacement)
+		}
+	}()
+
 	for _, query := range config.Monitoring {
-		currentTime := time.Now()
 
 		log.Printf("Running monitoring query: %s", query)
 		var r ResultHandler
 
 		if !query.RollUp {
-			r = new(DefaultResultHandler)
+			r = &DefaultResultHandler{ ResultChannel(rc) }
 		} else {
-			r = NewRolledUpResultHandler()
+			r = NewRolledUpResultHandler(rc)
 		}
+
+		thisQuery := query
+
+		wg.Add(1)
 
 		if query.TimeFilter {
-			executeQueryWithTimeFilter(db, query, &r, filterTime)
+			go executeQueryWithTimeFilter(&wg, db, thisQuery, &r, filterTime)
 		} else {
-			executeQuery(db, query, &r)
+			go executeQuery(&wg, db, thisQuery, &r)
 		}
 
-		result := r.GetMap()
-		//log.Printf("result: %v\n", result)
-
-		for _, m := range result {
-			printMap(currentTime, m, config.SpaceReplacement)
-		}
+		log.Printf("query kicked off")
 	}
+
+	wg.Wait()
+	close(rc)
 }

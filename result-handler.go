@@ -5,16 +5,19 @@ import (
 	"log"
 )
 
+type ResultChannel chan map[string]interface{}
+
 type ResultHandler interface {
 	HandleResult(cols []string, columnPointers []interface{})
-	GetMap() []map[string]interface{}
+	Finalise()
 }
 
 type DefaultResultHandler struct {
-	result []map[string]interface{}
+	ResultChannel ResultChannel
 }
 
 func (r *DefaultResultHandler) HandleResult(cols []string, columnPointers []interface{}) {
+	log.Printf("DefaultResultHandler.HandleResult")
 	//log.Printf("r.result(before): %v\n", r.result)
 	//log.Printf("cols: %v\n", cols)
 	//log.Printf("columnPointers: %v\n", columnPointers)
@@ -26,27 +29,24 @@ func (r *DefaultResultHandler) HandleResult(cols []string, columnPointers []inte
 		m[colName] = *val
 	}
 
-	r.result = append(r.result, m)
-	//log.Printf("r.result: %v\n", r.result)
+	r.ResultChannel <- m
 }
 
-func (r *DefaultResultHandler) GetMap() []map[string]interface{} {
-	return r.result
-}
+func (r *DefaultResultHandler) Finalise(){ }
 
 type RolledUpResultHandler struct {
+	ResultChannel ResultChannel
 	result map[string]interface{}
 }
 
-func NewRolledUpResultHandler() *RolledUpResultHandler {
-	r := new(RolledUpResultHandler)
-
-	r.result = make(map[string]interface{})
+func NewRolledUpResultHandler(rc ResultChannel) *RolledUpResultHandler {
+	r := &RolledUpResultHandler{ rc, make(map[string]interface{}) }
 
 	return r
 }
 
 func (r *RolledUpResultHandler) HandleResult(cols []string, columnPointers []interface{}) {
+	log.Printf("RolledUpResultHandler.HandleResult")
 	if len(cols) != 2 {
 		log.Fatal("Must have only 2 result columns to use RolledUpResultHandler (", len(cols), " found)")
 	}
@@ -58,9 +58,7 @@ func (r *RolledUpResultHandler) HandleResult(cols []string, columnPointers []int
 	r.result[keyStr] = *val
 }
 
-func (r *RolledUpResultHandler) GetMap() []map[string]interface{} {
-	var newResult []map[string]interface{}
-
-	return append(newResult, r.result)
+func (r *RolledUpResultHandler) Finalise() {
+	r.ResultChannel <- r.result
 }
 
