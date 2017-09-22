@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	//"log"
 	"fmt"
 	"database/sql"
 	"time"
@@ -44,7 +44,7 @@ func executeQueryCore(db *sql.DB, query Query, resultHandler *ResultHandler, que
 	//rollUp := query.RollUp && numColumns == 2
 
 	for rows.Next() {
-		log.Printf("resultHandler(before): %v\n", *resultHandler)
+		//log.Printf("resultHandler(before): %v\n", *resultHandler)
 		columns := make([]interface{}, numColumns)
 		columnPointers := make([]interface{}, numColumns)
 
@@ -56,7 +56,7 @@ func executeQueryCore(db *sql.DB, query Query, resultHandler *ResultHandler, que
 		checkError(err)
 
 		(*resultHandler).HandleResult(cols, columnPointers)
-		log.Printf("resultHandler: %v\n", *resultHandler)
+		//log.Printf("resultHandler: %v\n", *resultHandler)
 	}
 
 }
