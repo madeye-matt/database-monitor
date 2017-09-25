@@ -17,7 +17,7 @@ type DefaultResultHandler struct {
 }
 
 func (r *DefaultResultHandler) HandleResult(cols []string, columnPointers []interface{}) {
-	log.Printf("DefaultResultHandler.HandleResult")
+	//log.Printf("DefaultResultHandler.HandleResult")
 	//log.Printf("r.result(before): %v\n", r.result)
 	//log.Printf("cols: %v\n", cols)
 	//log.Printf("columnPointers: %v\n", columnPointers)
@@ -46,7 +46,7 @@ func NewRolledUpResultHandler(rc ResultChannel) *RolledUpResultHandler {
 }
 
 func (r *RolledUpResultHandler) HandleResult(cols []string, columnPointers []interface{}) {
-	log.Printf("RolledUpResultHandler.HandleResult")
+	//log.Printf("RolledUpResultHandler.HandleResult")
 	if len(cols) != 2 {
 		log.Fatal("Must have only 2 result columns to use RolledUpResultHandler (", len(cols), " found)")
 	}

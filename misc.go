@@ -44,7 +44,7 @@ func loadConfig(filename string) (Config, error) {
 }
 
 func initLogging() *os.File {
-	f, err := os.OpenFile("database-monitor.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+	f, err := os.OpenFile("database-monitor.log", os.O_CREATE|os.O_RDWR, 0666)
 	checkError(err)
 
 	// assign it to the standard logger
