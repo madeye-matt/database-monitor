@@ -36,8 +36,10 @@ func printMap(m map[string]interface{}, spaceReplacement string) {
 	timestamp := m[timestampColumn].(time.Time)
 	fmt.Printf("[%s] ", timestamp.Format(splunkDateFormat))
 	for key, value := range m {
-		key := strings.Replace(key, " ", spaceReplacement, -1)
-		fmt.Printf("%s=\"%v\" ", key, value)
+		if key != timestampColumn {
+			key := strings.Replace(key, " ", spaceReplacement, -1)
+			fmt.Printf("%s=\"%v\" ", key, value)
+		}
 	}
 	fmt.Printf("\n")
 }
