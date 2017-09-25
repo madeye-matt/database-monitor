@@ -10,6 +10,8 @@
     "Monitoring":[
         { "SQL": "select some_column, count(*) from some_table group by some_column;", "RollUp": true },
         { "SQL": "select some_other_column from some_other_table;", "RollUp": false },
+        { "SQL": "select to_timestamp(date) as date, name, some_value from some_table where to_timestamp(m.date) > $1;",
+            "RollUp": false, "TimeFilter": true, "TimeStampColumn": "date", "TimeStampFormat": "2006-01-02 15:04:05 -0700 MST" }
     ],
     "SpaceReplacement": "-"
 }

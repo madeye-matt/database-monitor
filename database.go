@@ -9,6 +9,10 @@ import (
 	"log"
 )
 
+const (
+	timestampColumn = "_timestamp"
+)
+
 func getConnectionParameters(dbConfig DatabaseConfig) string {
 	return fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=%s", dbConfig.Host, dbConfig.Port, dbConfig.Database, dbConfig.Username, dbConfig.Password, dbConfig.SSLMode)
 }
@@ -63,11 +67,11 @@ func executeQueryCore(db *sql.DB, query Query, resultHandler *ResultHandler, que
 		err = rows.Scan(columnPointers...)
 		checkError(err)
 
-		(*resultHandler).HandleResult(cols, columnPointers)
+		(*resultHandler).HandleResult(query, cols, columnPointers)
 		//log.Printf("resultHandler: %v\n", *resultHandler)
 	}
 
 	log.Printf("Calling Finalise()")
-	(*resultHandler).Finalise()
+	(*resultHandler).Finalise(query)
 }
 

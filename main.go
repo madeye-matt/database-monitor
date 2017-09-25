@@ -29,7 +29,11 @@ func checkError(e error) {
 	}
 }
 
-func printMap(timestamp time.Time, m map[string]interface{}, spaceReplacement string) {
+func printMap(m map[string]interface{}, spaceReplacement string) {
+	if m[timestampColumn] == nil {
+		log.Fatal("No timestamp data for %s", m)
+	}
+	timestamp := m[timestampColumn].(time.Time)
 	fmt.Printf("[%s] ", timestamp.Format(splunkDateFormat))
 	for key, value := range m {
 		key := strings.Replace(key, " ", spaceReplacement, -1)
@@ -112,10 +116,12 @@ func main() {
 	go func(){
 		log.Printf("output loop")
 		for m := range rc {
-			currentTime := time.Now()
+			if m[timestampColumn] == nil {
+				m[timestampColumn] = time.Now()
+			}
 			//log.Printf("Time: %v", currentTime)
 
-			printMap(currentTime, m, config.SpaceReplacement)
+			printMap(m, config.SpaceReplacement)
 		}
 
 		log.Printf("loop exiting")

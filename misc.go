@@ -20,6 +20,8 @@ type Query struct {
 	SQL    string
 	RollUp bool
 	TimeFilter bool
+	TimeStampColumn string
+	TimeStampFormat string
 }
 
 type Config struct {
