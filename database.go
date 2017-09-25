@@ -67,6 +67,7 @@ func executeQueryCore(db *sql.DB, query Query, resultHandler *ResultHandler, que
 		//log.Printf("resultHandler: %v\n", *resultHandler)
 	}
 
+	log.Printf("Calling Finalise()")
 	(*resultHandler).Finalise()
 }
 

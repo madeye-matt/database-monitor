@@ -104,15 +104,22 @@ func main() {
 	db := initDb(dbConfig)
 	defer db.Close()
 
-	var wg sync.WaitGroup
+	var wgOutput, wgProcess sync.WaitGroup
 	var rc ResultChannel = make(ResultChannel)
 
+	wgOutput.Add(1)
+
 	go func(){
+		log.Printf("output loop")
 		for m := range rc {
 			currentTime := time.Now()
+			//log.Printf("Time: %v", currentTime)
 
 			printMap(currentTime, m, config.SpaceReplacement)
 		}
+
+		log.Printf("loop exiting")
+		wgOutput.Done()
 	}()
 
 	for _, query := range config.Monitoring {
@@ -128,17 +135,21 @@ func main() {
 
 		thisQuery := query
 
-		wg.Add(1)
+		wgProcess.Add(1)
 
 		if query.TimeFilter {
-			go executeQueryWithTimeFilter(&wg, db, thisQuery, &r, filterTime)
+			go executeQueryWithTimeFilter(&wgProcess, db, thisQuery, &r, filterTime)
 		} else {
-			go executeQuery(&wg, db, thisQuery, &r)
+			go executeQuery(&wgProcess, db, thisQuery, &r)
 		}
 
 		log.Printf("query kicked off")
 	}
 
-	wg.Wait()
+	log.Printf("Waiting for completion (Process)")
+	wgProcess.Wait()
+	log.Printf("Closing ResultChannel")
 	close(rc)
+	log.Printf("Waiting for completion (Output)")
+	wgOutput.Wait()
 }

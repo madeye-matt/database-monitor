@@ -59,6 +59,7 @@ func (r *RolledUpResultHandler) HandleResult(cols []string, columnPointers []int
 }
 
 func (r *RolledUpResultHandler) Finalise() {
+	log.Printf("r.result: %v", r.result)
 	r.ResultChannel <- r.result
 }
 
