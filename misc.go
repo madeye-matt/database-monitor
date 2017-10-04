@@ -22,6 +22,13 @@ type Query struct {
 	TimeFilter bool
 	TimeStampColumn string
 	TimeStampFormat string
+	Transforms []Transformer
+}
+
+type Transformer struct {
+	Regexp string
+	Output string
+	FieldName string
 }
 
 type Config struct {
