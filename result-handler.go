@@ -47,7 +47,7 @@ func transformField(fieldValue string, reStr string, output string) string {
 	re, err := regexp.Compile(reStr)
 	checkError(err)
 
-	return re.ReplaceAllLiteralString(fieldValue, output)
+	return re.ReplaceAllString(fieldValue, output)
 }
 
 func applyTransform(transformer Transformer, result *map[string]interface{}) {
